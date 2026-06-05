@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family Planner</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="app">
+  <div class="header" id="hdr">
+    <div class="header-left" id="hdr-left"></div>
+    <div class="header-title" id="hdr-title">🧭 Family Planner</div>
+    <div class="header-right" id="hdr-right"></div>
+  </div>
+  <div class="content">
+    <div class="screen active" id="screen-home"></div>
+    <div class="screen" id="screen-results"></div>
+    <div class="screen" id="screen-detail"></div>
+    <div class="screen" id="screen-events"></div>
+    <div class="screen" id="screen-themes"></div>
+    <div class="screen" id="screen-add"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="nav('home')">
+      <span class="nav-icon">🔍</span><span>Search</span>
+    </div>
+    <div class="nav-item" id="nav-events" onclick="nav('events')">
+      <span class="nav-icon">📋</span><span>Events</span>
+    </div>
+    <div class="nav-item" id="nav-themes" onclick="nav('themes')">
+      <span class="nav-icon">💡</span><span>Themes</span>
+    </div>
+  </div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: family-planner
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LIBSQL_URL
+        sync: false
+      - key: LIBSQL_AUTH_TOKEN
+        sync: false
+      - key: FB_APP_ID
+        sync: false
+      - key: FB_APP_SECRET
+        sync: false
+      - key: FB_REDIRECT_URI
+        sync: false
+      - key: BASE_URL
+        sync: false
