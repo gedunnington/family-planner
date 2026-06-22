@@ -395,10 +395,12 @@ async function refreshEventDate(id) {
 // ── Add / Edit event ───────────────────────────────────────────────────
 let addPageText = '';
 let addThemeSelections = [];
+let addDetectedDate = null;
 
 async function showAdd(editId = null) {
   addPageText = '';
   const editing = editId ? await GET(`/api/events/${editId}`) : null;
+  addDetectedDate = editing?.next_date || null;
 
   document.getElementById('screen-add').innerHTML = `
     <div class="step-bar" id="add-step-bar">Step 1 of 2 — Basics</div>
@@ -508,14 +510,18 @@ async function doFetch() {
           if (ev.start_time) document.getElementById('add-start').value = toTimeInput(ev.start_time);
           if (ev.end_time) document.getElementById('add-end').value = toTimeInput(ev.end_time);
           addPageText = ev.name;
+          addDetectedDate = ev.date || null;
         }
       }
     } else if (result.error) {
       alert('Could not fetch page: ' + result.error);
     } else {
+      if (result.name) document.getElementById('add-name').value = result.name;
+      if (result.location) document.getElementById('add-loc').value = result.location;
       if (result.start_time) document.getElementById('add-start').value = toTimeInput(result.start_time);
       if (result.end_time) document.getElementById('add-end').value = toTimeInput(result.end_time);
       addPageText = result.pageText || '';
+      addDetectedDate = result.date || null;
       const ok = document.getElementById('fetch-ok');
       ok.style.display = 'block';
       ok.textContent = result.date
@@ -570,6 +576,7 @@ async function saveEvent(editId) {
     location: document.getElementById('add-loc').value.trim() || null,
     drive_time_mins: parseInt(document.getElementById('add-drive').value) || null,
     timing_notes: document.getElementById('add-timing').value.trim() || null,
+    next_date: addDetectedDate,
     start_time: fromTimeInput(document.getElementById('add-start').value),
     end_time: fromTimeInput(document.getElementById('add-end').value),
     message: document.getElementById('add-msg').value.trim() || null,

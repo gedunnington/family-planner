@@ -3,24 +3,27 @@ import Anthropic from '@anthropic-ai/sdk';
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function extractDateFromPage(pageText, timingNotes) {
-  const prompt = `Given this webpage content and the note that this event typically occurs "${timingNotes}", what is the next upcoming date and time?
+  const prompt = `Given this webpage content and the note that this event typically occurs "${timingNotes}", extract these event basics.
 
 Webpage content:
 ${pageText}
 
-Return ONLY valid JSON with this shape: {"date": "YYYY-MM-DD or null", "start_time": "H:MM AM/PM or null", "end_time": "H:MM AM/PM or null"}
-If no upcoming date is found, use null for date.`;
+Return ONLY valid JSON with this shape: {"name": "Event title or null", "location": "City, venue, or address or null", "date": "YYYY-MM-DD or null", "start_time": "H:MM AM/PM or null", "end_time": "H:MM AM/PM or null"}
+Notes:
+- "name" should be the event's title (not the website or organization name)
+- "location" should be a venue, address, or at least a city — null if not on the page
+- "date" is the next upcoming date — null if not found`;
 
   const msg = await client.messages.create({
     model: 'claude-haiku-4-5',
-    max_tokens: 200,
+    max_tokens: 300,
     messages: [{ role: 'user', content: prompt }],
   });
 
   try {
     return JSON.parse(msg.content[0].text);
   } catch {
-    return { date: null, start_time: null, end_time: null };
+    return { name: null, location: null, date: null, start_time: null, end_time: null };
   }
 }
 
