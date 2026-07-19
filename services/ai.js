@@ -25,11 +25,12 @@ export async function extractDateFromPage(pageText, timingNotes) {
 Webpage content:
 ${pageText}
 
-Return ONLY valid JSON with this shape: {"name": "Event title or null", "location": "City, venue, or address or null", "date": "YYYY-MM-DD or null", "start_time": "H:MM AM/PM or null", "end_time": "H:MM AM/PM or null"}
+Return ONLY valid JSON with this shape: {"name": "Event title or null", "location": "City, venue, or address or null", "date": "YYYY-MM-DD or null", "start_time": "H:MM AM/PM or null", "end_time": "H:MM AM/PM or null", "drive_time_mins": integer or null}
 Notes:
 - "name" should be the event's title (not the website or organization name)
 - "location" should be a venue, address, or at least a city — null if not on the page
-- "date" is the next upcoming date — null if not found`;
+- "date" is the next upcoming date — null if not found
+- "drive_time_mins" is your best estimate of one-way driving time in minutes from Verona, WI (a suburb southwest of Madison) to the event location. Round to a sensible number (15, 30, 45, 60, 90, 120, 180, 240, etc). Null if location is unknown or if you truly can't estimate.`;
 
   const msg = await client.messages.create({
     model: 'claude-haiku-4-5',
@@ -42,7 +43,7 @@ Notes:
 
   return parseJsonResponse(
     msg.content[0].text,
-    { name: null, location: null, date: null, start_time: null, end_time: null },
+    { name: null, location: null, date: null, start_time: null, end_time: null, drive_time_mins: null },
     'extractDateFromPage'
   );
 }

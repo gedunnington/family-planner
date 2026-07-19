@@ -426,7 +426,7 @@ async function showAdd(editId = null) {
       </div>
       <div class="form-2col" style="margin-bottom:16px">
         <div class="form-group" style="margin:0">
-          <label class="form-label">Drive time (min)</label>
+          <label class="form-label">Drive time (min) <span>AI fills</span></label>
           <input class="form-input" id="add-drive" type="number" placeholder="45"
                  value="${editing?.drive_time_mins || ''}">
         </div>
@@ -520,6 +520,9 @@ async function doFetch() {
       if (result.location) document.getElementById('add-loc').value = result.location;
       if (result.start_time) document.getElementById('add-start').value = toTimeInput(result.start_time);
       if (result.end_time) document.getElementById('add-end').value = toTimeInput(result.end_time);
+      if (result.drive_time_mins && !document.getElementById('add-drive').value) {
+        document.getElementById('add-drive').value = result.drive_time_mins;
+      }
       addPageText = result.pageText || '';
       addDetectedDate = result.date || null;
       const ok = document.getElementById('fetch-ok');
