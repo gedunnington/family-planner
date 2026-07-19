@@ -2,6 +2,23 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+// Claude sometimes wraps JSON in preamble ("Here's the info: {...}"). Prefilling
+// the assistant turn with `{` forces JSON-only output; the fallback recovers
+// anyway if the model somehow still adds text around it.
+function parseJsonResponse(rawText, fallback, label) {
+  const withBrace = '{' + rawText;
+  try {
+    return JSON.parse(withBrace);
+  } catch {
+    const match = withBrace.match(/\{[\s\S]*\}/);
+    if (match) {
+      try { return JSON.parse(match[0]); } catch {}
+    }
+    console.error(`[ai] ${label}: could not parse JSON. Raw response:`, rawText);
+    return fallback;
+  }
+}
+
 export async function extractDateFromPage(pageText, timingNotes) {
   const prompt = `Given this webpage content and the note that this event typically occurs "${timingNotes}", extract these event basics.
 
@@ -17,14 +34,17 @@ Notes:
   const msg = await client.messages.create({
     model: 'claude-haiku-4-5',
     max_tokens: 300,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      { role: 'user', content: prompt },
+      { role: 'assistant', content: '{' },
+    ],
   });
 
-  try {
-    return JSON.parse(msg.content[0].text);
-  } catch {
-    return { name: null, location: null, date: null, start_time: null, end_time: null };
-  }
+  return parseJsonResponse(
+    msg.content[0].text,
+    { name: null, location: null, date: null, start_time: null, end_time: null },
+    'extractDateFromPage'
+  );
 }
 
 export async function suggestThemesAndMessage(eventName, pageText, allThemes) {
@@ -48,12 +68,15 @@ Return ONLY valid JSON: {"theme_ids": [1, 2], "message": "..."}`;
   const msg = await client.messages.create({
     model: 'claude-haiku-4-5',
     max_tokens: 500,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      { role: 'user', content: prompt },
+      { role: 'assistant', content: '{' },
+    ],
   });
 
-  try {
-    return JSON.parse(msg.content[0].text);
-  } catch {
-    return { theme_ids: [], message: '' };
-  }
+  return parseJsonResponse(
+    msg.content[0].text,
+    { theme_ids: [], message: '' },
+    'suggestThemesAndMessage'
+  );
 }
